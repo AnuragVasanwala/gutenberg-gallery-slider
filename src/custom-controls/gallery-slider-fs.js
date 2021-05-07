@@ -5,19 +5,23 @@ var slide_index = 0;
 var transition_timer;
 
 document.addEventListener('DOMContentLoaded', function (event) {
-    document.getElementById('gallery-slider-next-btn').addEventListener('click', function (eventObj) {
-        increment_slide(1);
-    });
+    if (document.getElementById('gallery-slider-next-btn') !== null ){
+        document.getElementById('gallery-slider-next-btn').addEventListener('click', function (eventObj) {
+            increment_slide(1);
+        });
+    
+        document.getElementById('gallery-slider-prev-btn').addEventListener('click', function (eventObj) {
+            increment_slide(-1);
+        });
+    }
+    
+    console.log("Document Ready!");
 
-    document.getElementById('gallery-slider-prev-btn').addEventListener('click', function (eventObj) {
-        increment_slide(-1);
-    });
+    var indicators = document.getElementsByClassName("indicator");
 
-    var elements = document.getElementsByClassName("indicator");
-
-    Array.from(elements).forEach(function (element) {
-        element.addEventListener('click', seek_slide);
-    });
+    for (var i = 0; i < indicators.length; i++) {
+        indicators[i].addEventListener('click', seek_slide);
+    }
 
     slide_loop();
 });

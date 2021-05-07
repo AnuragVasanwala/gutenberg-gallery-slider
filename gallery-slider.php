@@ -4,7 +4,7 @@
  * Description:       Image and Video slider with some fancy features!
  * Requires at least: 5.7
  * Requires PHP:      7.0
- * Version:           0.1.0
+ * Version:           0.1.1
  * Author:            Anurag Vasanwala, rtCamp
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -24,6 +24,6 @@ function rt_gallery_slider_gallery_slider_block_init() {
 	register_block_type_from_metadata( __DIR__ );
 
 	/** Slider fonrt-end Scripts */
-	wp_enqueue_script( 'gallery-slider-script', plugins_url( 'src/custom-controls/gallery-slider-fs.js', __FILE__ ), array(), '1.0.1', true );
+	wp_enqueue_script( 'gallery-slider-script', plugins_url( 'src/custom-controls/gallery-slider-fs.js', __FILE__ ), array(), '1.0.9', true );
 }
 add_action( 'init', 'rt_gallery_slider_gallery_slider_block_init' );

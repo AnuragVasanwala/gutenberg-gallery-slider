@@ -49,12 +49,15 @@ registerBlockType( 'rt-gallery-slider/gallery-slider', {
 		},
 		medias: {
 			type: 'array',
+			default: []
 		},
 		captions: {
 			type: 'array',
+			default: []
 		},
 		links: {
 			type: 'array',
+			default: []
 		}
 	},
 	/**

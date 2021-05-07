@@ -13,6 +13,7 @@ var component_selected;
 
 export default function gallery_slider(is_editor_block, isSelected, attributes, setAttributes = null) {
     var resultant_DOM = [];
+
     component_selected = isSelected;
 
     //clearTimeout( transition_timer );
@@ -23,8 +24,22 @@ export default function gallery_slider(is_editor_block, isSelected, attributes, 
         if (isSelected) {
             resultant_DOM.push(
                 <MediaPlaceholder key="gallery-slider-mph"
-                    onSelect={(value) => { setAttributes({ medias: value }) }}
+                    onSelect={(value) => { 
+
+                        /** Retrive original title */
+                        var new_captions = [];
+
+                        for (let index = 0; index < value.length; index++) {
+                            const element = value[index];
+                            new_captions.push(element.title);
+                        }
+
+                        /** Set captions & medias */
+                        setAttributes({ captions: new_captions })
+                        setAttributes({ medias: value })
+                    }}
                     render={({ open }) => {
+                        console.log(open);
                         // return <img
                         //     src='' alt='x123'
                         //     onClick={open}
@@ -37,6 +52,7 @@ export default function gallery_slider(is_editor_block, isSelected, attributes, 
         }
     }
 
+    /** Render Medias and Arrows */
     resultant_DOM.push(
         <div key="gallery-slider-container" className="slideshow-container">
             {render_medias(attributes, setAttributes)}
@@ -44,25 +60,40 @@ export default function gallery_slider(is_editor_block, isSelected, attributes, 
         </div>
     );
 
-    resultant_DOM.push(<br key="gallery-slider-linebreak" />);
-
+    /** Render Indicators */
     resultant_DOM.push(
         <div key="gallery-slider-indicators-container" className="slideshow-indicators">
             {render_indicators((attributes.medias !== undefined) ? attributes.medias.length : 0, attributes.show_indicators)}
         </div>
     );
 
+    console.log(attributes.transition_time_ms);
+    /** Set transition_time to ZERO if auto_transition is disabled  */
     if (attributes.auto_transition == false) {
         attributes.transition_time_ms = 0;
     }
 
-    resultant_DOM.push(
-        <input type="hidden" key="gallery-slider-congif-transition_time_ms" id="transition_time_ms" name="transition_time_ms" value={attributes.transition_time_ms} />
-    );
+    /** Set hidden field for transition configurations */
+    if (isSelected) {
+        clearTimeout(transition_timer);
+        resultant_DOM.push(
+            <input type="hidden" key="gallery-slider-congif-transition_time_ms" id="transition_time_ms" name="transition_time_ms" value={0} />
+        );
+    }
+    else {
+        resultant_DOM.push(
+            <input type="hidden" key="gallery-slider-congif-transition_time_ms" id="transition_time_ms" name="transition_time_ms" value={attributes.transition_time_ms} />
+        );
+    }
 
     return resultant_DOM;
 }
 
+/**
+ * Renders arrows
+ * @param {boolean} show_arrows Show or Hide navigation arrows
+ * @returns 
+ */
 function render_arrows(show_arrows) {
     var resultant_DOM = [];
 
@@ -74,30 +105,38 @@ function render_arrows(show_arrows) {
     return resultant_DOM;
 }
 
+/**
+ * Renders media (images & video)
+ * @param {*} params Attributes
+ * @param {*} setAttributes Function to set attribute values
+ * @returns 
+ */
 function render_medias(params, setAttributes) {
-    //const { medias, captions, setState } = params;
-    
-    if (params.medias === undefined) return;
-    
     var resultant_DOM = [];
-    //captions = (captions === undefined)?[]:captions;
-
-    for (let index = 0; index < params.medias.length; index++) {
-        const element = params.medias[index];
-        //params.captions.push(element.title);
-
-        if (element.type === "image") {
+    
+    const { medias, captions, setState } = params;
+    const new_caption_list = [...captions];
+    
+    /** Return if no media are present */
+    if (medias === undefined) return;
+    
+    /** Enumrate through all medias */
+    for (let index = 0; index < medias.length; index++) {
+        const media_item = medias[index];
+        
+        if (media_item.type === "image") {
             if (component_selected) {
                 resultant_DOM.push(
                     <div className="rt_gallery_slider fadeIn" key={"gallery-slider-slide-" + index} >
-                        <img src={element.url} />
+                        <img className="gs-img" src={media_item.url} />
                         <div className="textEditor">
                             <PlainText
                                 className="textEditor"
-                                value={ "hello" }
+                                value={ (new_caption_list[index] === null)?"":new_caption_list[index] }
                                 onChange={ ( content ) => {
-                                    console.log(content);
-                                    
+                                    var newCaption = content;
+                                    new_caption_list[index] = newCaption;
+                                    setAttributes({ captions: new_caption_list });
                                  } }
                             />
                         </div>
@@ -106,21 +145,37 @@ function render_medias(params, setAttributes) {
             } else {
                 resultant_DOM.push(
                     <div className="rt_gallery_slider fadeIn" key={"gallery-slider-slide-" + index} >
-                        <img src={element.url} />
-                        <div className="text">{element.title}</div>
+                        <img className="gs-img" src={media_item.url} />
+                        <div className="text">{params.captions[index]}</div>
                     </div>
                 );
             }
-            
-
-
         } else {
-            resultant_DOM.push(
-                <div className="rt_gallery_slider fadeIn" key={"gallery-slider-slide-" + index} >
-                    <video src={element.url} />
-                    <div className="text">{element.title}</div>
-                </div>
-            );
+            if (component_selected) {
+                resultant_DOM.push(
+                    <div className="rt_gallery_slider fadeIn" key={"gallery-slider-slide-" + index} >
+                        <video className="gs-video" src={media_item.url} />
+                        <div className="textEditor">
+                            <PlainText
+                                className="textEditor"
+                                value={ (captions[index] === null)?"":captions[index] }
+                                onChange={ ( content ) => {
+                                    var newCaption = content;
+                                    new_caption_list[index] = newCaption;
+                                    setAttributes({ captions: new_caption_list });
+                                 } }
+                            />
+                        </div>
+                    </div>
+                );
+            } else {
+                resultant_DOM.push(
+                    <div className="rt_gallery_slider fadeIn" key={"gallery-slider-slide-" + index} >
+                        <video className="gs-video" src={media_item.url} />
+                        <div className="text">{params.captions[index]}</div>
+                    </div>
+                );
+            }
         }
     }
     return resultant_DOM;
@@ -178,7 +233,7 @@ function slide_loop(auto_increment_slide = true, force = false) {
 
     /** Retrive transition configurations */
     var transition_time = document.getElementById("transition_time_ms");
-
+console.log(transition_time);
     /** Create timer only if auto_transition is enabled */
     if (transition_time === null || transition_time.value >= 2000 || slides.length === 0) {
         /** Clear old timer and register new one */
@@ -186,12 +241,15 @@ function slide_loop(auto_increment_slide = true, force = false) {
 
         if (transition_time === null || (component_selected && !force)) {
             transition_timer = setTimeout(slide_loop, 2000); // Change image every 2 seconds
+            console.log("Timer for 2");
         }
         else {
             transition_timer = setTimeout(slide_loop, transition_time.value); // Change image every 2 seconds
+            console.log("Timer for N");
         }
     }
-    console.log(component_selected);
+    
+    console.log(component_selected + " - " + !force);
     if ( component_selected && !force ) return;
 
     /** Return if no slides are available */

@@ -1,15 +1,18 @@
-.rt_gallery_slider {display: none;}
-img, video {
+.rt_gallery_slider {
+  display: none;
+  height: 420px;;
+}
+.gs-img, .gs-video {
   vertical-align: middle;
   width: 100%;
-  height: 420px;
+  height: 420px !important;
   object-fit: cover;
 }
 
 /* Slideshow container */
 .slideshow-container {
   width: 100%;
-  height: 400px;
+  height: 420px;
   position: relative;
   margin: auto;
 }
@@ -19,10 +22,10 @@ img, video {
   color: #f2f2f2;
   font-size: 15px;
   padding: 8px 12px;
-  position: absolute;
-  bottom: 0;
-  width: 300px;
+  position: relative;
+  bottom: 40px;
   text-align: center;
+  background: rgba(0,0,0,0.5);
 }
 
 /* Number text (1/3 etc) */
@@ -77,9 +80,8 @@ img, video {
 .prev, .next {
   cursor: pointer;
   position: absolute;
-  top: 50%;
+  top: 35%;
   width: auto;
-  margin-top: -22px;
   padding: 16px;
   color: white;
   font-weight: bold;
