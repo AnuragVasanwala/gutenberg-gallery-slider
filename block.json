@@ -1,0 +1,15 @@
+{
+	"apiVersion": 2,
+	"name": "rt-gallery-slider/gallery-slider",
+	"title": "Gallery Slider",
+	"category": "widgets",
+	"icon": "slides",
+	"description": "Image and Video slider with some fancy features!",
+	"supports": {
+		"html": false
+	},
+	"textdomain": "gallery-slider",
+	"editorScript": "file:./build/index.js",
+	"editorStyle": "file:./build/index.css",
+	"style": "file:./build/style-index.css"
+}
