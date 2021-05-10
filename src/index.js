@@ -55,10 +55,14 @@ registerBlockType( 'rt-gallery-slider/gallery-slider', {
 			type: 'array',
 			default: []
 		},
-		links: {
+		caption_location: {
 			type: 'array',
 			default: []
-		}
+		},
+		test_content: {
+			source: 'html',
+			selector: 'p',
+		},
 	},
 	/**
 	 * @see ./edit.js

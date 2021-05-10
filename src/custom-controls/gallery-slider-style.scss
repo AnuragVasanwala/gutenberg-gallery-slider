@@ -30,13 +30,26 @@
 
 /* Caption text editor */
 .textEditor {
-  color: #000;
+  border-radius: 10px;
+  background: #000;
+  color: #fff;
   font-size: 15px;
-  padding: 8px 12px;
+  padding: 5px;
   position: absolute;
-  bottom: 0;
-  width: 300px;
-  text-align: center;
+  top: 0;
+  width: auto;
+  height: auto;
+  left: 0;
+}
+
+/* Caption text editor */
+.textEditorX {
+  margin: 0 !important;
+  padding: 5px !important;
+
+  a {
+    color: #fff !important;
+  }
 }
 
 /* Number text (1/3 etc) */
