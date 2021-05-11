@@ -43,60 +43,60 @@ function render_inspection_panel(attributes, setAttributes) {
 	const ticks = [
 		{
 			value: 2500,
-			label: 'Fast',
+			label: __('Fast', 'gallery-slider'),
 		},
 		{
 			value: 7500,
-			label: 'Normal',
+			label: __('Normal', 'gallery-slider'),
 		},
 		{
 			value: 15000,
-			label: 'Slow',
+			label: __('Slow', 'gallery-slider'),
 		}
 	];
 
 	resultant_DOM.push(
-		<InspectorControls key="setting">
+		<InspectorControls key="rt-gallery-slider-setting">
 			<Panel>
-				<PanelBody title="View Settings" icon={tool} initialOpen={true}>
+				<PanelBody title={__('View Settings', 'gallery-slider')} icon={tool} initialOpen={true}>
 					<PanelRow>
 						<ToggleControl
-							label="Show Arrows"
+							label={__('Show Arrows', 'gallery-slider')}
 							checked={show_arrows}
 							onChange={ value => { setAttributes({ show_arrows: value }); }}
 						/>
 					</PanelRow>
 					<PanelRow>
 						<ToggleControl
-							label="Show Indicators"
+							label={__('Show Indicators', 'gallery-slider')}
 							checked={show_indicators}
 							onChange={ value => { setAttributes({ show_indicators: value }); }}
 						/>
 					</PanelRow>
 				</PanelBody>
-				<PanelBody title="Transition" icon={flipHorizontal} initialOpen={false}>
+				<PanelBody title={__('Transition', 'gallery-slider')} icon={flipHorizontal} initialOpen={false}>
 					<PanelRow>
 						<SelectControl
-							label={__('Transition Effect:')}
+							label={__('Transition Effect:', 'gallery-slider')}
 							value={ transition_effect }
 							onChange={ value => { setAttributes({ transition_effect: value }); }}
 							options={[
-								{ value: null, label: 'Select transition effect', disabled: true },
-								{ value: 'fade', label: 'Fade' },
-								{ value: 'slide', label: 'Slide' },
+								{ value: null, label: __('Select transition effect', 'gallery-slider'), disabled: true },
+								{ value: 'fade', label: __('Fade', 'gallery-slider') },
+								// { value: 'slide', label: __('Slide', 'gallery-slider') },
 							]}
 						/>
 					</PanelRow>
 					<PanelRow>
 						<ToggleControl
-							label="Auto Transition"
+							label={__('Auto Transition', 'gallery-slider')}
 							checked={auto_transition}
 							onChange={ value => { setAttributes({ auto_transition: value }); }}
 						/>
 					</PanelRow>
 					<PanelRow>
 						<RangeControl
-							label="Transition Time (milliSeconds)"
+							label={__('Transition Time (milliSeconds)', 'gallery-slider')}
 							value={transition_time_ms}
 							min={2500}
 							max={15000}

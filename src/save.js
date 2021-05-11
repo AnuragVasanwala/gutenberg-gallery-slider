@@ -26,7 +26,6 @@ import { useBlockProps } from '@wordpress/block-editor';
  import gallery_slider from './custom-controls/gallery-slider';
 
 export default function save( props ) {
-	console.log("save ->>>>>>>>>> " + props);
 	return (
 		<div { ...useBlockProps.save() }>
 			{ gallery_slider(false, false, props.attributes) }

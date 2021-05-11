@@ -4,7 +4,9 @@ var slide_index = 0;
 /** Auto transition config */
 var transition_timer;
 
+/** Attach handlers on DOM Loaded */
 document.addEventListener('DOMContentLoaded', function (event) {
+    /** Attach Navigation Handler */
     if (document.getElementById('gallery-slider-next-btn') !== null ){
         document.getElementById('gallery-slider-next-btn').addEventListener('click', function (eventObj) {
             increment_slide(1);
@@ -15,14 +17,8 @@ document.addEventListener('DOMContentLoaded', function (event) {
         });
     }
     
-    console.log("Document Ready!");
-
-    var indicators = document.getElementsByClassName("indicator");
-    for (var i = 0; i < indicators.length; i++) {
-        indicators[i].addEventListener('click', seek_slide);
-    }
-
-    var slides = document.getElementsByClassName("rt_gallery_slider");
+    /** Attach Video Auto-PlayPause Handler */
+    var slides = document.getElementsByClassName("rt-gallery-slider");
     for (var i = 0; i < slides.length; i++) {
         if (slides[i].childNodes[0].tagName.toLowerCase() == "video") {
             slides[i].childNodes[0].addEventListener('mouseenter', function (eventObj) {
@@ -34,7 +30,16 @@ document.addEventListener('DOMContentLoaded', function (event) {
         }
     }
 
+    /** Attach Indicator Handler */
+    var indicators = document.getElementsByClassName("rt-gallery-slider-indicator");
+    for (var i = 0; i < indicators.length; i++) {
+        indicators[i].addEventListener('click', seek_slide);
+    }
+
+    /** Start `slide_loop` for Auto Transition */
     slide_loop();
+    
+    console.log("Document Ready!");
 });
 
 
@@ -43,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
  * @param {int} increment_by Slides to be increment or Decrement
  */
  function increment_slide(increment_by) {
-    var slides = document.getElementsByClassName("rt_gallery_slider");
+    var slides = document.getElementsByClassName("rt-gallery-slider");
 
     /** Map index inside boundry */
     if (slide_index < 0) { slide_index = slides.length - 1 }
@@ -63,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
  * Brings specified slide into view
  */
 function seek_slide() {
-    var slides = document.getElementsByClassName("rt_gallery_slider");
+    var slides = document.getElementsByClassName("rt-gallery-slider");
 
     /** Map index inside boundry */
     if (slide_index < 0) { slide_index = slides.length - 1 }
@@ -85,11 +90,12 @@ function seek_slide() {
  */
 function slide_loop(auto_increment_slide = true, force = false) {
     /** Retrive slides and indicators */
-    var slides = document.getElementsByClassName("rt_gallery_slider");
-    var indicators = document.getElementsByClassName("indicator");
+    var slides = document.getElementsByClassName("rt-gallery-slider");
+    var indicators = document.getElementsByClassName("rt-gallery-slider-indicator");
 
     /** Retrive transition configurations */
     var transition_time = document.getElementById("transition_time_ms");
+    var transition_disabled = document.getElementById("transition_disabled");
 
     /** Create timer only if auto_transition is enabled */
     if (transition_time === null || transition_time.value >= 2000 || slides.length === 0) {
@@ -105,14 +111,14 @@ function slide_loop(auto_increment_slide = true, force = false) {
     }
 
     /** Return if no slides are available */
-    if (slides.length === 0) return;
+    if (slides.length === 0 || transition_disabled !== null) return;
 
     /** Clear slides & indicators from view */
     for (var i = 0; i < slides.length; i++) {
         slides[i].style.display = "none";
 
         if (indicators.length > 0) {
-            indicators[i].className = indicators[i].className.replace(" active", "");
+            indicators[i].className = indicators[i].className.replace(" rt-gallery-slider-indicator-active", "");
         }
     }
 
@@ -124,7 +130,7 @@ function slide_loop(auto_increment_slide = true, force = false) {
     slides[slide_index].style.display = "block";
 
     if (indicators.length > 0) {
-        indicators[slide_index].className += " active";
+        indicators[slide_index].className += " rt-gallery-slider-indicator-active";
     }
 
     if (slides[slide_index].childNodes[0].tagName.toLowerCase() == "video"){
@@ -151,10 +157,14 @@ function slide_loop(auto_increment_slide = true, force = false) {
     }
 }
 
-
+/**
+ * Play or pause video on given slide
+ * @param {int} index Slide Index
+ * @param {boolean} play Play?
+ */
 function play_video(play = true) {
-    /** Retrive slides and indicators */
-    var slides = document.getElementsByClassName("rt_gallery_slider");
+    /** Retrive slides */
+    var slides = document.getElementsByClassName("rt-gallery-slider");
     var promise;
 
     if ( play ) {
