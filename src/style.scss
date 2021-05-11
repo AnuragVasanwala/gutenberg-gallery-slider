@@ -40,6 +40,7 @@
   width: auto;
   height: auto;
   left: 0;
+
 }
 
 /* Caption text editor */
@@ -131,12 +132,12 @@
 }
 // .rt_gallery_slider {
 //   display: none;
-//   height: 420px;;
+//   height: 420px;
 // }
 // .gs-img, .gs-video {
 //   vertical-align: middle;
 //   width: 100%;
-//   height: 420px !important;
+//   height: 420px  !important;
 //   object-fit: cover;
 // }
 
@@ -156,7 +157,31 @@
 //   position: relative;
 //   bottom: 40px;
 //   text-align: center;
-//   background: rgba(0,0,0,0.5);
+//   background: rgba(0,0,0,0.8);
+// }
+
+// /* Caption text editor */
+// .textEditor {
+//   border-radius: 10px;
+//   background: #000;
+//   color: #fff;
+//   font-size: 15px;
+//   padding: 5px;
+//   position: absolute;
+//   top: 0;
+//   width: auto;
+//   height: auto;
+//   left: 0;
+// }
+
+// /* Caption text editor */
+// .textEditorX {
+//   margin: 0 !important;
+//   padding: 5px !important;
+
+//   a {
+//     color: #fff !important;
+//   }
 // }
 
 // /* Number text (1/3 etc) */
@@ -236,3 +261,110 @@
 // .slideshow-indicators {
 //   text-align: center;
 // }
+// // .rt_gallery_slider {
+// //   display: none;
+// //   height: 420px;;
+// // }
+// // .gs-img, .gs-video {
+// //   vertical-align: middle;
+// //   width: 100%;
+// //   height: 420px !important;
+// //   object-fit: cover;
+// // }
+
+// // /* Slideshow container */
+// // .slideshow-container {
+// //   width: 100%;
+// //   height: 420px;
+// //   position: relative;
+// //   margin: auto;
+// // }
+
+// // /* Caption text */
+// // .text {
+// //   color: #f2f2f2;
+// //   font-size: 15px;
+// //   padding: 8px 12px;
+// //   position: relative;
+// //   bottom: 40px;
+// //   text-align: center;
+// //   background: rgba(0,0,0,0.5);
+// // }
+
+// // /* Number text (1/3 etc) */
+// // .numbertext {
+// //   color: #f2f2f2;
+// //   font-size: 12px;
+// //   padding: 8px 12px;
+// //   position: absolute;
+// //   top: 0;
+// // }
+
+// // /* The dots/bullets/indicators */
+// // .indicator {
+// //   height: 15px;
+// //   width: 15px;
+// //   margin: 0 2px;
+// //   background-color: #bbb;
+// //   border-radius: 50%;
+// //   display: inline-block;
+// //   transition: background-color 0.6s ease;
+// // }
+
+// // .active {
+// //   background-color: #717171;
+// // }
+
+// // /* Fading animation */
+// // .fadeIn {
+// //   -webkit-animation-name: fadeEffect;
+// //   -webkit-animation-duration: 1.5s;
+// //   animation-name: fadeEffect;
+// //   animation-duration: 1.5s;
+// // }
+
+// // @-webkit-keyframes fadeEffect {
+// //   from {opacity: .4} 
+// //   to {opacity: 1}
+// // }
+
+// // @keyframes fadeEffect {
+// //   from {opacity: .4} 
+// //   to {opacity: 1}
+// // }
+
+// // /* On smaller screens, decrease text size */
+// // @media only screen and (max-width: 300px) {
+// //   .text {font-size: 11px}
+// // }
+
+
+// // /* Next & previous buttons */
+// // .prev, .next {
+// //   cursor: pointer;
+// //   position: absolute;
+// //   top: 35%;
+// //   width: auto;
+// //   padding: 16px;
+// //   color: white;
+// //   font-weight: bold;
+// //   font-size: 18px;
+// //   transition: 0.6s ease;
+// //   border-radius: 0 3px 3px 0;
+// //   user-select: none;
+// // }
+
+// // /* Position the "next button" to the right */
+// // .next {
+// //   right: 0;
+// //   border-radius: 3px 0 0 3px;
+// // }
+
+// // /* On hover, add a black background color with a little bit see-through */
+// // .prev:hover, .next:hover {
+// //   background-color: rgba(0,0,0,0.8);
+// // }
+
+// // .slideshow-indicators {
+// //   text-align: center;
+// // }

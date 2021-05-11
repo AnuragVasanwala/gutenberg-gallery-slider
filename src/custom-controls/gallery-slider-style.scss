@@ -40,6 +40,12 @@
   width: auto;
   height: auto;
   left: 0;
+
+  &:hover {
+    border-width: 2px !important;
+    border-color: greenyellow;
+    border-style: solid;
+  }
 }
 
 /* Caption text editor */
@@ -50,6 +56,7 @@
   a {
     color: #fff !important;
   }
+
 }
 
 /* Number text (1/3 etc) */

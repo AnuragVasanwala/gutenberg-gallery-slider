@@ -7,21 +7,32 @@
  */
 import './gallery-slider-style.scss';
 
+/** Block Editor components */
 import { MediaPlaceholder, URLInput, PlainText, RichText } from '@wordpress/block-editor';
 
+/** Maintain state whether Block is selected or not */
 var component_selected;
 
+/**
+ * Renders Gallery Slider
+ * @param {boolean} is_editor_block Renders for Editor if `true`, else for save
+ * @param {boolean} isSelected Flag indicated whether block is selected or not
+ * @param {*} attributes Attributes like medias, captions, locations, etc.
+ * @param {*} setAttributes Function pointer to set updated values of attributes
+ * @returns 
+ */
 export default function gallery_slider(is_editor_block, isSelected, attributes, setAttributes = null) {
+    /** Rendered DOM of Gallery Slider */
     var resultant_DOM = [];
 
     component_selected = isSelected;
 
-    //clearTimeout( transition_timer );
-
+    /** If block is selected, render components releted to editor */
     if (is_editor_block && setAttributes !== null) {
         const ALLOWED_MEDIA_TYPES = ['image', 'video'];
 
         if (isSelected) {
+            clearTimeout(transition_timer);
             resultant_DOM.push(
                 <MediaPlaceholder key="gallery-slider-mph"
                     id
@@ -39,7 +50,7 @@ export default function gallery_slider(is_editor_block, isSelected, attributes, 
                         var new_caption_location = [];
 
                         for (let index = 0; index < value.length; index++) {
-                            const element = [ 0, 0 ];
+                            const element = [0, 0];
                             new_caption_location.push(element);
                         }
 
@@ -48,24 +59,13 @@ export default function gallery_slider(is_editor_block, isSelected, attributes, 
                         setAttributes({ captions: new_captions });
                         setAttributes({ medias: value });
                     }}
-                    render={({ open }) => {
-                        console.log(open);
-                        // return <img
-                        //     src='' alt='x123'
-                        //     onClick={open}
-                        // />;
-                    }}
+                    render={({ open }) => { }}
                     allowedTypes={ALLOWED_MEDIA_TYPES}
                     multiple={'add'}
                     value={attributes.medias}
                 />
             );
         }
-    }
-    else {
-        resultant_DOM.push(
-            <RichText.Content tagName="p" value={attributes.test_content} />
-        );
     }
 
     /** Render Medias and Arrows */
@@ -82,8 +82,7 @@ export default function gallery_slider(is_editor_block, isSelected, attributes, 
             {render_indicators((attributes.medias !== undefined) ? attributes.medias.length : 0, attributes.show_indicators)}
         </div>
     );
-
-    console.log(attributes.transition_time_ms);
+    
     /** Set transition_time to ZERO if auto_transition is disabled  */
     if (attributes.auto_transition == false) {
         attributes.transition_time_ms = 0;
@@ -128,8 +127,10 @@ function render_arrows(show_arrows) {
  * @returns 
  */
 function render_medias(params, setAttributes) {
+    /** Rendered DOM for medias */
     var resultant_DOM = [];
 
+    /** Retrive attributes */
     const { medias, captions, caption_location, setState } = params;
     const new_caption_list = [...captions];
     const new_caption_location_list = [...caption_location];
@@ -141,29 +142,31 @@ function render_medias(params, setAttributes) {
     for (let index = 0; index < medias.length; index++) {
         const media_item = medias[index];
 
-        //console.log(" + + + + + translate3d(" + new_caption_location_list[index][0] + "px, " + new_caption_location_list[index][1] + "px, 0)");
-        
-        var tx="translate3d(" + new_caption_location_list[index][0] + "px, " + new_caption_location_list[index][1] + "px, 0)";
-        //var tx="translate3d(0, 0, 0)";
+        /** Retrive old translation */
+        xOffset[index] = new_caption_location_list[index][0];
+        yOffset[index] = new_caption_location_list[index][1];
+        var old_tarnslation = "translate3d(" + new_caption_location_list[index][0] + "px, " + new_caption_location_list[index][1] + "px, 0)";
+
         if (media_item.type === "image") {
             if (component_selected) {
                 resultant_DOM.push(
-                    <div className="rt_gallery_slider fadeIn" key={"gallery-slider-slide-" + index} >
+                    <div className="rt_gallery_slider fadeIn" key={"gallery-slider-slide-" + index}
+                        onMouseLeave={() => drag_end(null, index)}
+                    >
                         <img className="gs-img" src={media_item.url} />
                         <div id={"gallery-slider-slide-ct-" + index} className="textEditor" key={"gallery-slider-slide-ct-" + index}
-                            style={{transform:tx}}
+                            style={{ transform: old_tarnslation }}
 
-                            onMouseDown={(e) => dragStart(e, index)}
-                            onMouseUp={(e) => dragEnd(e, index)}
+                            onMouseUp={(e) => drag_end(e, index)}
+                            onMouseDown={(e) => drag_start(e, index)}
                             onMouseMove={(e) => drag(e, index, setAttributes, params)}>
 
                             <RichText key={"gallery-slider-slide-ct-" + index}
                                 tagName="p"
                                 id={"gallery-slider-slide-ct-rt-" + index} key={"gallery-slider-slide-ct-rt-" + index}
                                 value={(new_caption_list[index] === null) ? "" : new_caption_list[index]}
-                                
+
                                 className={"textEditorX"}
-                                
 
                                 onChange={(content) => {
                                     var newCaption = content;
@@ -172,22 +175,19 @@ function render_medias(params, setAttributes) {
                                 }}
                             />
                         </div>
-
                     </div>
                 );
             } else {
-                // <div className="text">{params.captions[index]}</div>
-                // style={"translate3d(" + caption_location[index][0] + "px, " + caption_location[index][1] + "px, 0)"}
                 resultant_DOM.push(
                     <div className="rt_gallery_slider fadeIn" key={"gallery-slider-slide-" + index}>
                         <img className="gs-img" src={media_item.url} />
                         <div id={"gallery-slider-slide-ct-" + index} className="textEditor" key={"gallery-slider-slide-ct-" + index}
-                            style={{transform:tx}}
-                            >
+                            style={{ transform: old_tarnslation }}
+                        >
 
-                        <RichText.Content key={"gallery-slider-slide-ct-" + index}
+                            <RichText.Content key={"gallery-slider-slide-ct-" + index}
                                 tagName="p"
-                                
+
                                 className={"textEditorX"}
 
                                 id={"gallery-slider-slide-ct-rt-" + index} key={"gallery-slider-slide-ct-rt-" + index}
@@ -199,21 +199,29 @@ function render_medias(params, setAttributes) {
             }
         } else {
             if (component_selected) {
-                resultant_DOM.push(
-                    <div className="rt_gallery_slider fadeIn" key={"gallery-slider-slide-" + index} onMouseUp={(e) => dragEnd(e, index)}>
-                        <video controls className="gs-video" src={media_item.url} />
-                        <div id={"gallery-slider-slide-ct-" + index} className="textEditor" key={"gallery-slider-slide-ct-" + index}
-                            style={{transform:tx}}
+                //load_doc(medias.length);
 
-                            onMouseDown={(e) => dragStart(e, index)}
-                            onMouseUp={(e) => dragEnd(e, index)}
-                            onMouseMove={(e) => drag(e, index, setAttributes, params)}>
+                resultant_DOM.push(
+                    <div className="rt_gallery_slider fadeIn" key={"gallery-slider-slide-" + index} onMouseUp={(e) => drag_end(e, index)}
+                        onMouseLeave={() => drag_end(null, index)}
+                    >
+                        <video controls className="gs-video" src={media_item.url}
+                            onMouseEnter={()=> play_video(index, false)}
+                            onMouseLeave={()=> play_video(index)}
+                        />
+                        <div id={"gallery-slider-slide-ct-" + index} className="textEditor" key={"gallery-slider-slide-ct-" + index}
+                            style={{ transform: old_tarnslation }}
+
+                            onMouseUp={(e) => drag_end(e, index)}
+                            onMouseDown={(e) => drag_start(e, index)}
+                            onMouseMove={(e) => drag(e, index, setAttributes, params)}
+                        >
 
                             <RichText key={"gallery-slider-slide-ct-" + index}
                                 tagName="p"
                                 id={"gallery-slider-slide-ct-rt-" + index} key={"gallery-slider-slide-ct-rt-" + index}
                                 value={(new_caption_list[index] === null) ? "" : new_caption_list[index]}
-                                
+
                                 className={"textEditorX"}
 
                                 onChange={(content) => {
@@ -228,18 +236,21 @@ function render_medias(params, setAttributes) {
                 );
             } else {
                 resultant_DOM.push(
-                    <div className="rt_gallery_slider fadeIn" key={"gallery-slider-slide-" + index} >
-                        <video controls className="gs-video" src={media_item.url} />
+                    <div className="rt_gallery_slider fadeIn" key={"gallery-slider-slide-" + index}>
+                        <video controls className="gs-video" src={media_item.url}
+                            onMouseEnter={()=> play_video(index, false)}
+                            onMouseLeave={()=> play_video(index)}
+                        />
                         <div id={"gallery-slider-slide-ct-" + index} className="textEditor" key={"gallery-slider-slide-ct-" + index}
-                            style={{transform:tx}}
-                            >
+                            style={{ transform: old_tarnslation }}
+                        >
                             <RichText.Content key={"gallery-slider-slide-ct-" + index}
                                 tagName="p"
 
                                 className={"textEditorX"}
-                                
+
                                 id={"gallery-slider-slide-ct-rt-" + index} key={"gallery-slider-slide-ct-rt-" + index}
-                                value={(new_caption_list[index] === null) ? "" : new_caption_list[index]}/>
+                                value={(new_caption_list[index] === null) ? "" : new_caption_list[index]} />
                         </div>
                     </div>
                 );
@@ -249,12 +260,17 @@ function render_medias(params, setAttributes) {
     return resultant_DOM;
 }
 
-function render_indicators(n, show_indicators) {
+/**
+ * Renders Indicator Dots
+ * @param {int} indicator_count Number of indicators
+ * @param {Boolean} show_indicators Show/Hide indicators
+ * @returns 
+ */
+function render_indicators(indicator_count, show_indicators) {
     var resultant_DOM = [];
 
     if (show_indicators === true) {
-        for (let index = 0; index < n; index++) {
-            const element = n;
+        for (let index = 0; index < indicator_count; index++) {
             resultant_DOM.push(<span key={"gallery-slider-indicator-" + index} className="indicator" target={index} onClick={() => seek_slide(index)} />)
         }
     }
@@ -268,8 +284,6 @@ var slide_index = 0;
 
 /** Auto transition config */
 var transition_timer;
-
-slide_loop();
 
 /**
  * Brings the slide in view by increment/decrement number
@@ -300,11 +314,11 @@ function increment_slide(increment_by) {
  */
 function seek_slide(slide_number) {
     var slides = document.getElementsByClassName("rt_gallery_slider");
-    
+
     /** Map index inside boundry */
     if (slide_index < 0) { slide_index = slides.length - 1 }
     if (slide_index >= slides.length) { slide_index = 0 }
-    
+
     active = false;
 
     /** Stop Video */
@@ -329,24 +343,21 @@ function slide_loop(auto_increment_slide = true, force = false) {
 
     /** Retrive transition configurations */
     var transition_time = document.getElementById("transition_time_ms");
-    console.log(transition_time);
-
+    
     /** Create timer only if auto_transition is enabled */
     if (transition_time === null || transition_time.value >= 2000 || slides.length === 0) {
         /** Clear old timer and register new one */
         clearTimeout(transition_timer);
 
         if (transition_time === null || (component_selected && !force)) {
-            transition_timer = setTimeout(slide_loop, 2000); // Change image every 2 seconds
-            console.log("Timer for 2");
+            transition_timer = setTimeout(slide_loop, 2000);
         }
         else {
-            transition_timer = setTimeout(slide_loop, transition_time.value); // Change image every 2 seconds
-            console.log("Timer for N");
+            transition_timer = setTimeout(slide_loop, transition_time.value);
         }
     }
 
-    console.log(component_selected + " - " + !force);
+    /** Hold slider is in editor block and no force action has been made by user */
     if (component_selected && !force) return;
 
     /** Return if no slides are available */
@@ -374,7 +385,6 @@ function slide_loop(auto_increment_slide = true, force = false) {
 
     if (slides[slide_index].childNodes[0].tagName.toLowerCase() == "video") {
         clearTimeout(transition_timer);
-        console.log("##");
         slides[slide_index].childNodes[0].currentTime = 0;
 
         var promise = slides[slide_index].childNodes[0].play();
@@ -397,32 +407,6 @@ function slide_loop(auto_increment_slide = true, force = false) {
     }
 }
 
-
-/** ------------- Popover ----------------- */
-import { Button, Popover } from '@wordpress/components';
-import { withState } from '@wordpress/compose';
-
-const MyPopover = withState({
-    isVisible: false,
-})(({ isVisible, setState }) => {
-    const toggleVisible = () => {
-        setState((state) => ({ isVisible: !state.isVisible }));
-    };
-    return (
-        <Button isSecondary onClick={toggleVisible}>
-            Toggle Popover!
-            { isVisible && <Popover>Popover is toggled!</Popover>}
-        </Button>
-    );
-});
-
-
-
-
-
-var dragItem;
-var container;
-
 var active = false;
 var currentX;
 var currentY;
@@ -431,26 +415,24 @@ var initialY;
 var xOffset;
 var yOffset;
 
+/** Block is limited to 20 slides */
+init_variables(20);
+
 document.addEventListener('DOMContentLoaded', function (event) {
     setTimeout(() => {
         console.log("DOC READY!");
-        load_doc(10);
+        //var slides = document.getElementsByClassName("rt_gallery_slider");
     }, 500);
 });
-function load_doc(numx) {
-
-
-    dragItem = document.querySelector("#item");
-    container = document.querySelector("#container");
-
+function init_variables(slide_count) {
     currentX = [];
     currentY = [];
     initialX = [];
     initialY = [];
-    xOffset  = [];
-    yOffset  = [];
-
-    for (let c1 = 0; c1 < numx; c1++) {
+    xOffset = [];
+    yOffset = [];
+    
+    for (let c1 = 0; c1 < slide_count; c1++) {
         currentX.push(0);
         currentY.push(0);
         initialX.push(0);
@@ -458,16 +440,9 @@ function load_doc(numx) {
         xOffset.push(0);
         yOffset.push(0);
     }
-    // container.addEventListener("touchstart", dragStart, false);
-    // container.addEventListener("touchend", dragEnd, false);
-    // container.addEventListener("touchmove", drag, false);
-
-    // container.addEventListener("mousedown", dragStart, false);
-    // container.addEventListener("mouseup", dragEnd, false);
-    // container.addEventListener("mousemove", drag, false);
 }
 
-function dragStart(e, index) {
+function drag_start(e, index) {
     if (e.type === "touchstart") {
         initialX[index] = e.touches[0].clientX - xOffset[index];
         initialY[index] = e.touches[0].clientY - yOffset[index];
@@ -477,16 +452,15 @@ function dragStart(e, index) {
     }
 
     active = false;
-    dragItem = document.querySelector("#gallery-slider-slide-ct-rt-" + index);
-    console.log("e.target === dragItem : " + (e.target === dragItem));
+    var dragItem = document.querySelector("#gallery-slider-slide-ct-rt-" + index);
+    
     if (e.target === dragItem) {
         active = true;
     }
     return active;
 }
 
-function dragEnd(e, index) {
-    console.log("dEnd +");
+function drag_end(e, index) {
     initialX[index] = currentX[index];
     initialY[index] = currentY[index];
 
@@ -510,38 +484,56 @@ function drag(e, index, setAttributes, params) {
         xOffset[index] = currentX[index];
         yOffset[index] = currentY[index];
 
-        container = document.querySelector("#gallery-slider-slide-ct-" + index);
+        var container = document.querySelector("#gallery-slider-slide-ct-" + index);
 
         setTranslate(currentX[index], currentY[index], container, setAttributes, params, index);
     }
 }
 
-function setTranslate(xPos, yPos, el, sa, params, index) {
+function setTranslate(xPos, yPos, el, setAttributes, params, index) {
     const { caption_location, setState } = params;
     const new_caption_list = [...caption_location];
     var newCaption = getTranslate3d(el);
     new_caption_list[index] = newCaption;
-    sa({ caption_location: new_caption_list });
+    setAttributes({ caption_location: new_caption_list });
 
-
-    console.log("setTx = ");
     el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
-    console.log(getTranslate3d(el));
 }
 
-function getTranslate3d (el) {
+function getTranslate3d(el) {
     var values = el.style.transform.split(/\w+\(|\);?/);
     if (!values[1] || !values[1].length) {
         return [];
     }
 
-    var result =  values[1].split(/,\s?/g);
+    var result = values[1].split(/,\s?/g);
 
     // result.splice(2,1); for 2D operation, remove Z (3rd Data)
 
     for (let c1 = 0; c1 < result.length; c1++) {
-        result[c1] = parseInt(result[c1].replace('px',''));        
+        result[c1] = parseInt(result[c1].replace('px', ''));
     }
 
     return result;
+}
+
+function play_video(index, play = true) {
+    console.log("PLAYPAUSE :");
+    /** Retrive slides and indicators */
+    var slides = document.getElementsByClassName("rt_gallery_slider");
+    var promise;
+
+    if ( play ) {
+        promise = slides[index].childNodes[0].play();
+    } else {
+        promise = slides[index].childNodes[0].pause();
+    }
+
+    if (promise !== undefined) {
+        promise.catch(error => {
+            slides[index].childNodes[0].setAttribute("controls", "controls");
+        }).then(() => {
+            slides[index].childNodes[0].removeAttribute("controls");
+        });
+    }
 }
