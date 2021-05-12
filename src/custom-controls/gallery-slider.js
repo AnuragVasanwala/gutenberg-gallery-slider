@@ -13,6 +13,8 @@ import { MediaPlaceholder, URLInput, PlainText, RichText } from '@wordpress/bloc
 /** Maintain state whether Block is selected or not */
 var component_selected;
 
+export {gallery_slider, remove_current_slide, move_slide, slide_index_in_view}
+
 /**
  * Renders Gallery Slider
  * @param {boolean} is_editor_block Renders for Editor if `true`, else for save
@@ -21,47 +23,52 @@ var component_selected;
  * @param {*} setAttributes Function pointer to set updated values of attributes
  * @returns 
  */
-export default function gallery_slider(is_editor_block, isSelected, attributes, setAttributes = null) {
+function gallery_slider(is_editor_block, isSelected, attributes, setAttributes = null) {
     /** Rendered DOM of Gallery Slider */
     var resultant_DOM = [];
 
     component_selected = isSelected;
 
-    /** If block is selected, render components releted to editor */
-    if (is_editor_block && setAttributes !== null) {
-        if (isSelected) {
-            clearTimeout(transition_timer);
-            resultant_DOM.push(
-                <MediaPlaceholder key="gallery-slider-mph"
-                    allowedTypes={['image', 'video']}   // Media Types
-                    multiple={'add'}                    // Append Mode
+    if (attributes.medias.length == 0) {
+        clearTimeout(transition_timer);
+        resultant_DOM.push(
+            <MediaPlaceholder key="gallery-slider-mph"
+                allowedTypes={['image', 'video']}   // Media Types
+                multiple={'add'}                    // Append Mode
 
-                    onSelect={(value) => {
-                        /** Update Captions */
-                        var new_captions = [];
-                        for (let index = 0; index < value.length; index++) {
-                            const element = value[index];
-                            new_captions.push(element.title);
-                        }
+                onSelect={(value) => {
+                    /** Update Captions */
+                    var new_captions = [];
+                    for (let index = 0; index < value.length; index++) {
+                        const element = value[index];
+                        new_captions.push(element.title);
+                    }
 
-                        /** Generate default caption location */
-                        var new_caption_location = [];
-                        for (let index = 0; index < value.length; index++) {
-                            const element = [0, 0];
-                            new_caption_location.push(element);
-                        }
+                    /** Generate default caption location */
+                    var new_caption_location = [];
+                    for (let index = 0; index < value.length; index++) {
+                        const element = [0, 0];
+                        new_caption_location.push(element);
+                    }
 
-                        /** Set captions & medias */
-                        setAttributes({ caption_location: new_caption_location });
-                        setAttributes({ captions: new_captions });
-                        setAttributes({ medias: value });
-                    }}
+                    /** Set captions & medias */
+                    setAttributes({ caption_location: new_caption_location });
+                    setAttributes({ captions: new_captions });
+                    setAttributes({ medias: value });
+                }}
 
-                    value={attributes.medias}           // Set existing selected medias to MediaUploader
-                />
-            );
-        }
+                value={attributes.medias}           // Set existing selected medias to MediaUploader
+            />
+        );
+        return resultant_DOM;
     }
+
+    // /** If block is selected, render components releted to editor */
+    // if (is_editor_block && setAttributes !== null) {
+    //     if (isSelected) {
+
+    //     }
+    // }
 
     /** Render Medias and Arrows */
     resultant_DOM.push(
@@ -141,6 +148,9 @@ function render_medias(params, setAttributes) {
     for (let index = 0; index < medias.length; index++) {
         const media_item = medias[index];
 
+        /** Workaround for a problem: new_caption_location_list.length < media.length */
+        if (new_caption_location_list.length !== medias.length) continue;
+
         /** Retrive old translation */
         xOffset[index] = new_caption_location_list[index][0];
         yOffset[index] = new_caption_location_list[index][1];
@@ -158,8 +168,6 @@ function render_medias(params, setAttributes) {
                         <img className="rt-gallery-slider-img" src={media_item.url} />
                         <div id={"gallery-slider-slide-ct-" + index} className="rt-gallery-slider-editor" key={"gallery-slider-slide-ct-" + index}
                             style={{ transform: old_tarnslation }}
-
-
                         >
 
                             <RichText key={"gallery-slider-slide-ct-" + index}
@@ -259,6 +267,53 @@ function render_medias(params, setAttributes) {
     return resultant_DOM;
 }
 
+function move_slide(attributes, setAttributes, index_increment) {
+    const { medias, captions, caption_location } = attributes;
+    const updated_media_list = [...medias];
+    const updated_caption_list = [...captions];
+    const updated_caption_location_list = [...caption_location];
+
+    if (slide_index_in_view + index_increment < 0) return;
+    if (slide_index_in_view + index_increment >= medias.length) return;
+
+    /** Update Lists */
+    let tmp = updated_media_list[slide_index_in_view + index_increment];
+    updated_media_list[slide_index_in_view + index_increment] = updated_media_list[slide_index_in_view];
+    updated_media_list[slide_index_in_view] = tmp;
+    
+    tmp = updated_caption_list[slide_index_in_view + index_increment];
+    updated_caption_list[slide_index_in_view + index_increment] = updated_caption_list[slide_index_in_view];
+    updated_caption_list[slide_index_in_view] = tmp;
+
+    tmp = updated_caption_location_list[slide_index_in_view + index_increment];
+    updated_caption_location_list[slide_index_in_view + index_increment] = updated_caption_location_list[slide_index_in_view];
+    updated_caption_location_list[slide_index_in_view] = tmp;
+
+    /** Set captions & medias */
+    setAttributes({ caption_location: updated_caption_location_list });
+    setAttributes({ captions: updated_caption_list });
+    setAttributes({ medias: updated_media_list });
+
+    increment_slide(index_increment);
+}
+
+function remove_current_slide(attributes, setAttributes) {
+    const { medias, captions, caption_location } = attributes;
+    const updated_media_list = [...medias];
+    const updated_caption_list = [...captions];
+    const updated_caption_location_list = [...caption_location];
+
+    /** Update Lists */
+    updated_media_list.splice(slide_index_in_view, 1);
+    updated_caption_list.splice(slide_index_in_view, 1);
+    updated_caption_location_list.splice(slide_index_in_view, 1);
+
+    /** Set captions & medias */
+    setAttributes({ caption_location: updated_caption_location_list });
+    setAttributes({ captions: updated_caption_list });
+    setAttributes({ medias: updated_media_list });
+}
+
 /**
  * Renders Indicator Dots
  * @param {int} indicator_count Number of indicators
@@ -279,7 +334,7 @@ function render_indicators(indicator_count, show_indicators) {
 
 /** EDITOR FRONT-END SIDE SCRIPTS ---------------------------------------------------- */
 /** Maintains index of slide in view */
-var slide_index = 0;
+var slide_index_in_view = 0;
 
 /** Auto transition config */
 var transition_timer;
@@ -292,18 +347,18 @@ function increment_slide(increment_by) {
     var slides = document.getElementsByClassName("rt-gallery-slider");
 
     /** Map index inside boundry */
-    if (slide_index < 0) { slide_index = slides.length - 1 }
-    if (slide_index >= slides.length) { slide_index = 0 }
+    if (slide_index_in_view < 0) { slide_index_in_view = slides.length - 1 }
+    if (slide_index_in_view >= slides.length) { slide_index_in_view = 0 }
 
     active = false;
 
     /** Stop Video */
-    if (slides.length > 0 && slides[slide_index].childNodes[0].tagName.toLowerCase() == "video") {
-        slides[slide_index].childNodes[0].pause();
+    if (slides.length > 0 && slides[slide_index_in_view].childNodes[0].tagName.toLowerCase() == "video") {
+        slides[slide_index_in_view].childNodes[0].pause();
     }
 
     increment_by = parseInt(increment_by);
-    slide_index += increment_by;
+    slide_index_in_view += increment_by;
     slide_loop(false, true);
 }
 
@@ -315,18 +370,18 @@ function seek_slide(slide_number) {
     var slides = document.getElementsByClassName("rt-gallery-slider");
 
     /** Map index inside boundry */
-    if (slide_index < 0) { slide_index = slides.length - 1 }
-    if (slide_index >= slides.length) { slide_index = 0 }
+    if (slide_index_in_view < 0) { slide_index_in_view = slides.length - 1 }
+    if (slide_index_in_view >= slides.length) { slide_index_in_view = 0 }
 
     active = false;
 
     /** Stop Video */
-    if (slides.length > 0 && slides[slide_index].childNodes[0].tagName.toLowerCase() == "video") {
-        slides[slide_index].childNodes[0].pause();
+    if (slides.length > 0 && slides[slide_index_in_view].childNodes[0].tagName.toLowerCase() == "video") {
+        slides[slide_index_in_view].childNodes[0].pause();
     }
 
     slide_number = parseInt(slide_number);
-    slide_index = slide_number;
+    slide_index_in_view = slide_number;
     slide_loop(true, true);
 }
 
@@ -372,37 +427,37 @@ function slide_loop(auto_increment_slide = true, force = false) {
     }
 
     /** Map index inside boundry */
-    if (slide_index < 0) { slide_index = slides.length - 1 }
-    if (slide_index >= slides.length) { slide_index = 0 }
+    if (slide_index_in_view < 0) { slide_index_in_view = slides.length - 1 }
+    if (slide_index_in_view >= slides.length) { slide_index_in_view = 0 }
 
     /** Assign new slide and highlight indicator */
-    slides[slide_index].style.display = "block";
+    slides[slide_index_in_view].style.display = "block";
 
     if (indicators.length > 0) {
-        indicators[slide_index].className += " rt-gallery-slider-indicator-active";
+        indicators[slide_index_in_view].className += " rt-gallery-slider-indicator-active";
     }
 
-    if (slides[slide_index].childNodes[0].tagName.toLowerCase() == "video") {
+    if (slides[slide_index_in_view].childNodes[0].tagName.toLowerCase() == "video") {
         clearTimeout(transition_timer);
-        slides[slide_index].childNodes[0].currentTime = 0;
+        slides[slide_index_in_view].childNodes[0].currentTime = 0;
 
-        var promise = slides[slide_index].childNodes[0].play();
+        var promise = slides[slide_index_in_view].childNodes[0].play();
 
         if (promise !== undefined) {
             promise.catch(error => {
-                slides[slide_index].childNodes[0].setAttribute("controls", "controls");
+                slides[slide_index_in_view].childNodes[0].setAttribute("controls", "controls");
             }).then(() => {
-                slides[slide_index].childNodes[0].removeAttribute("controls");
+                slides[slide_index_in_view].childNodes[0].removeAttribute("controls");
             });
         }
 
-        slides[slide_index].childNodes[0].onended = function () { increment_slide(1); };
+        slides[slide_index_in_view].childNodes[0].onended = function () { increment_slide(1); };
         return;
     }
 
     /** Increment slide index by one */
     if (auto_increment_slide === true) {
-        slide_index++;
+        slide_index_in_view++;
     }
 }
 

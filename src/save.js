@@ -23,7 +23,7 @@ import { useBlockProps } from '@wordpress/block-editor';
  * @return {WPElement} Element to render.
  */
 
- import gallery_slider from './custom-controls/gallery-slider';
+ import {gallery_slider} from './custom-controls/gallery-slider';
 
 export default function save( props ) {
 	return (
