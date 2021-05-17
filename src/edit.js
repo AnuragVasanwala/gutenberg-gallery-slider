@@ -5,27 +5,22 @@
  */
 import { __ } from '@wordpress/i18n';
 
-// /**
-//  * React hook that is used to mark the block wrapper element.
-//  * It provides all the necessary props like the class name.
-//  *
-//  * @see https://developer.wordpress.org/block-editor/packages/packages-block-editor/#useBlockProps
-//  */
-//  import { useState } from '@wordpress/element';
-//  import { withState } from '@wordpress/compose';
-// import { registerBlockType } from '@wordpress/blocks';
-
-/** React Components for WordPress */
-import { Panel, PanelBody, PanelRow, RangeControl, ToggleControl, SelectControl, ToolbarGroup, ToolbarButton } from '@wordpress/components';
+/** React Components for WordPress BlockControls and InspectorControls */
+import { Panel, PanelBody, PanelRow, RangeControl, SelectControl, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 
 /** Inspector Panel */
-import { InspectorControls, useBlockProps, BlockControls, MediaUpload, MediaUploadCheck, MediaPlaceholder } from '@wordpress/block-editor';
+import { BlockControls, InspectorControls, MediaUpload, MediaUploadCheck, useBlockProps } from '@wordpress/block-editor';
 
-/** Icons */
-import { more, cog, tool, group, flipHorizontal, formatBold, formatItalic, link, plus, edit, closeSmall, queryPaginationPrevious, queryPaginationNext } from '@wordpress/icons';
+/** Icons for BlockContorls and InspectorControls */
+import { closeSmall, edit, flipHorizontal, plus, queryPaginationNext, queryPaginationPrevious, tool } from '@wordpress/icons';
 
 /** My custom Gallery Slider */
-import { gallery_slider, move_slide, remove_current_slide, slide_index_in_view } from './custom-controls/gallery-slider';
+//import { gallery_slider, move_slide, remove_current_slide } from './custom-controls/gallery-slider';
+
+/** Gallery Slider Component */
+//import GallerySlider from './components/test';
+import GallerySlider from './components/gallery-slider';
+//import {GallerySliderX} from './custom-controls/gallery-slider';
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
@@ -35,56 +30,54 @@ import { gallery_slider, move_slide, remove_current_slide, slide_index_in_view }
  */
 import './editor.scss';
 
-function render_inspection_panel(attributes, setAttributes) {
-	var resultant_DOM = [];
-	const { show_arrows, show_indicators, auto_transition, transition_effect, transition_time_ms, setState } = attributes;
-
-	/** Tick marks for Transition Time */
-	const ticks = [
-		{
-			value: 2500,
-			label: __('Fast', 'gallery-slider'),
-		},
-		{
-			value: 7500,
-			label: __('Normal', 'gallery-slider'),
-		},
-		{
-			value: 15000,
-			label: __('Slow', 'gallery-slider'),
-		}
-	];
-
-	resultant_DOM.push(
+/**
+ * Builds BlockControls for configurations
+ * @param {*} attributes Existing Attributes
+ * @param {*} setAttributes Function pointer to update attributes
+ * @returns DOM Array of BlockControls
+ */
+function render_block_controls(attributes, setAttributes) {
+	/** Rendered DOM of InspectorControls */
+	var resultantDOM = [];
+	
+	resultantDOM.push(
 		<BlockControls>
 			<ToolbarGroup label="Options">
 				<MediaUploadCheck>
 					<MediaUpload
-						onSelect={(value) => {
+						onSelect={(newSelection) => {
+							let slides = [...attributes.slides];
 							/** Update Captions */
-							var new_captions = [...attributes.captions];
-							for (let index = 0; index < value.length; index++) {
-								const element = value[index];
-								new_captions.push(element.title);
+
+							let newCaptions = [...slides.ctaList.captionList];
+							for (let index = 0; index < newSelection.length; index++) {
+								const element = newSelection[index];
+								newCaptions.push(element.title);
 							}
 
 							/** Generate default caption location */
-							var new_caption_location = [...attributes.caption_location];
-							for (let index = 0; index < value.length; index++) {
+							let newCaptionLocation = [...slides.ctaList.location_list];
+							for (let index = 0; index < newSelection.length; index++) {
 								const element = [0, 0];
-								new_caption_location.push(element);
+								newCaptionLocation.push(element);
 							}
 
 							/** Generate default caption location */
-							var new_medias = [...attributes.medias];
-							for (let index = 0; index < value.length; index++) {
-								new_medias.push(value[index]);
+							let newMedias = [...slides.media_list];
+							for (let index = 0; index < newSelection.length; index++) {
+								newMedias.push(newSelection[index]);
 							}
 
 							/** Set captions & medias */
-							setAttributes({ caption_location: new_caption_location });
-							setAttributes({ captions: new_captions });
-							setAttributes({ medias: new_medias });
+							slides = {
+								mediaList: newMedias,
+								ctaList: {
+									captionList: newCaptions,
+									locationList: newCaptionLocation
+								}
+							};
+
+							setAttributes({ slides: slides });
 						}
 						}
 						allowedTypes={['video', 'image']}
@@ -100,41 +93,47 @@ function render_inspection_panel(attributes, setAttributes) {
 						allowedTypes={['image', 'video']}   // Media Types
 						multiple={'add'}                    // Append Mode
 
-						onSelect={(value) => {
+						onSelect={(updatedSelection) => {
+							console.log(attributes);
+							let slides = attributes.slides;
+
 							/** Update Captions */
-							var new_captions = [];
-							for (let index = 0; index < value.length; index++) {
-								const element = value[index];
-								new_captions.push(element.title);
+							let newCaptions = [slides.ctaList.captionList];
+							for (let index = 0; index < updatedSelection.length; index++) {
+								const element = updatedSelection[index];
+								newCaptions.push(element.title);
 							}
 
 							/** Generate default caption location */
-							var new_caption_location = [];
-							for (let index = 0; index < value.length; index++) {
+							let newCaptionLocation = [slides.ctaList.location_list];
+							for (let index = 0; index < updatedSelection.length; index++) {
 								const element = [0, 0];
-								new_caption_location.push(element);
+								newCaptionLocation.push(element);
 							}
 
 							/** Set captions & medias */
-							setAttributes({ caption_location: new_caption_location });
-							setAttributes({ captions: new_captions });
-							setAttributes({ medias: value });
+							slides = {
+								mediaList: updatedSelection,
+								ctaList: {
+									captionList: newCaptions,
+									locationList: newCaptionLocation
+								}
+							};
+							setAttributes({ slides: slides });
 						}}
 
 						render={({ open }) => (
 							<ToolbarButton icon={edit} label="Edit Slides" onClick={open} />
 						)}
 
-						value={attributes.medias.map((media) => {
-							if (media !== undefined && media.id != undefined){
+						value={attributes.slides.mediaList.map != undefined && attributes.slides.mediaList.map((media) => {
+							if (media !== undefined && media.id != undefined) {
 								return media.id;
 							}
-						})}           // Set existing selected medias to MediaUploader
+						})}
 					/>
 				</MediaUploadCheck>
-				{(attributes.medias.length > 0)
-					&& <ToolbarButton icon={closeSmall} label="Remove Current Slide" onClick={() => remove_current_slide(attributes, setAttributes)} />
-				}
+				
 			</ToolbarGroup>
 			<ToolbarGroup>
 				<ToolbarButton icon={queryPaginationPrevious} label="Move Previous" onClick={() => move_slide(attributes, setAttributes, -1)} />
@@ -143,22 +142,64 @@ function render_inspection_panel(attributes, setAttributes) {
 		</BlockControls>
 	);
 
-	resultant_DOM.push(
+	// value={attributes.slides.media_list.map((media) => {
+	// 	if (media !== undefined && media.id != undefined) {
+	// 		return media.id;
+	// 	}
+	// })}
+
+	// {(attributes.slides.media_list.length > 0)
+	// 	&& <ToolbarButton icon={closeSmall} label="Remove Current Slide" onClick={() => remove_current_slide(attributes, setAttributes)} />
+	// }
+
+	return resultantDOM;
+}
+
+/**
+ * Builds InspectorControls for configurations
+ * @param {*} attributes Existing Attributes
+ * @param {*} setAttributes Function pointer to update attributes
+ * @returns DOM Array of InspectorControls
+ */
+function render_inspection_controls(attributes, setAttributes) {
+	/** Rendered DOM of InspectorControls */
+	const resultantDOM = [];
+
+	/** Extract existing attributes */
+	const { showArrows, showIndicators, autoTransition, transitionEffect, transitionTimeMs } = attributes;
+
+	/** Tick marks for Transition Time */
+	const tickMarks = [
+		{
+			value: 2500,
+			label: __('Fast', 'gallery-slider'),
+		},
+		{
+			value: 7500,
+			label: __('Normal', 'gallery-slider'),
+		},
+		{
+			value: 15000,
+			label: __('Slow', 'gallery-slider'),
+		}
+	];
+
+	resultantDOM.push(
 		<InspectorControls key="rt-gallery-slider-setting">
 			<Panel>
 				<PanelBody title={__('View Settings', 'gallery-slider')} icon={tool} initialOpen={true}>
 					<PanelRow>
 						<ToggleControl
 							label={__('Show Arrows', 'gallery-slider')}
-							checked={show_arrows}
-							onChange={value => { setAttributes({ show_arrows: value }); }}
+							checked={showArrows}
+							onChange={isChecked => { setAttributes({ showArrows: isChecked }); }}
 						/>
 					</PanelRow>
 					<PanelRow>
 						<ToggleControl
 							label={__('Show Indicators', 'gallery-slider')}
-							checked={show_indicators}
-							onChange={value => { setAttributes({ show_indicators: value }); }}
+							checked={showIndicators}
+							onChange={isChecked => { setAttributes({ showIndicators: isChecked }); }}
 						/>
 					</PanelRow>
 				</PanelBody>
@@ -166,45 +207,70 @@ function render_inspection_panel(attributes, setAttributes) {
 					<PanelRow>
 						<SelectControl
 							label={__('Transition Effect:', 'gallery-slider')}
-							value={transition_effect}
-							onChange={value => { setAttributes({ transition_effect: value }); }}
+							value={transitionEffect}
+							onChange={updatedEffect => { setAttributes({ transitionEffect: updatedEffect }); }}
 							options={[
 								{ value: null, label: __('Select transition effect', 'gallery-slider'), disabled: true },
 								{ value: 'fade', label: __('Fade', 'gallery-slider') },
-								// { value: 'slide', label: __('Slide', 'gallery-slider') },
 							]}
 						/>
 					</PanelRow>
 					<PanelRow>
 						<ToggleControl
 							label={__('Auto Transition', 'gallery-slider')}
-							checked={auto_transition}
-							onChange={value => { setAttributes({ auto_transition: value }); }}
+							checked={autoTransition}
+							onChange={isChecked => { setAttributes({ autoTransition: isChecked }); }}
 						/>
 					</PanelRow>
 					<PanelRow>
 						<RangeControl
 							label={__('Transition Time (milliSeconds)', 'gallery-slider')}
-							value={transition_time_ms}
+							value={transitionTimeMs}
 							min={2500}
 							max={15000}
-							onChange={value => { setAttributes({ transition_time_ms: value }); }}
-							disabled={!auto_transition}
-							marks={ticks}
+							onChange={updatedTime => { setAttributes({ transitionTimeMs: updatedTime }); }}
+							disabled={!autoTransition}
+							marks={tickMarks}
 						/>
 					</PanelRow>
 				</PanelBody>
 			</Panel>
 		</InspectorControls>
 	)
-	return resultant_DOM;
+	return resultantDOM;
+}
+
+function testFunction(testData) {
+	console.log("CallBack");
+	console.log(testData);
 }
 
 export default function Edit({ attributes, setAttributes, isSelected }) {
+	console.log("EDIT");
+	console.log(attributes);
+	//{gallery_slider(true, isSelected, attributes, setAttributes)}
 	return (
 		<div {...useBlockProps()}>
-			{ render_inspection_panel(attributes, setAttributes)}
-			{ gallery_slider(true, isSelected, attributes, setAttributes)}
+			{render_block_controls(attributes, setAttributes)}
+			{render_inspection_controls(attributes, setAttributes)}
+			hello
+			<GallerySlider
+							is_editor={attributes.autoTransition}
+							transitionTime={attributes.transitionTimeMs}
+
+							showArrows={attributes.showArrows}
+							showIndicators={attributes.showIndicators}
+
+							editable={true} // only for editor
+							
+							slides={attributes.slides} // [ mediaList ]
+							
+							onChange={(newSelection)=>{
+								setAttributes({ medias: newSelection });
+								console.log("attributes");
+								console.log(attributes);
+							}}
+							/>
 		</div>
 	);
 }

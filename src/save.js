@@ -13,6 +13,12 @@ import { __ } from '@wordpress/i18n';
  */
 import { useBlockProps } from '@wordpress/block-editor';
 
+/** My custom Gallery Slider */
+import {gallery_slider} from './custom-controls/gallery-slider';
+
+/** Gallery Slider Component */
+import GallerySlider from './components/gallery-slider';
+
 /**
  * The save function defines the way in which the different attributes should
  * be combined into the final markup, which is then serialized by the block
@@ -22,13 +28,22 @@ import { useBlockProps } from '@wordpress/block-editor';
  *
  * @return {WPElement} Element to render.
  */
-
- import {gallery_slider} from './custom-controls/gallery-slider';
-
 export default function save( props ) {
+	//{ gallery_slider(false, false, props.attributes) }
 	return (
 		<div { ...useBlockProps.save() }>
-			{ gallery_slider(false, false, props.attributes) }
+			<GallerySlider 
+							autoTransition={props.autoTransition}
+							transitionTime={props.transitionTimeMs}
+
+							showArrows={props.showArrows}
+							showIndicators={props.showIndicators}
+
+							editable={false} // only for editor
+							
+							slides={props.slides} // [ mediaList ]
+							
+							/>
 		</div>
 	);
 }

@@ -26,43 +26,59 @@ import save from './save';
  * @see https://developer.wordpress.org/block-editor/developers/block-api/#registering-a-block
  */
 registerBlockType( 'rt-gallery-slider/gallery-slider', {
+	/** Attributes or say configurations for the Block */
 	attributes: {
-		show_arrows: {
+		showArrows: {
 			type: 'boolean',
 			default: true
 		},
-		show_indicators: {
+		showIndicators: {
 			type: 'boolean',
 			default: true
 		},
-		auto_transition: {
+		autoTransition: {
 			type: 'boolean',
 			default: true
 		},
-		transition_effect: {
+		transitionEffect: {
 			type: 'string',
 			default: "fade"
 		},
-		transition_time_ms: {
+		transitionTimeMs: {
 			type: 'number',
 			default: 5000
 		},
 		medias: {
 			type: 'array',
-			default: []
+    		default: []
 		},
 		captions: {
 			type: 'array',
-			default: []
+    		default: []
 		},
 		caption_location: {
 			type: 'array',
-			default: []
+    		default: []
 		},
-		test_content: {
-			source: 'html',
-			selector: 'p',
-		},
+		slides: {
+			type: 'object',
+    		default: {
+				mediaList: {
+					type: 'array',
+					default: []
+				},
+				ctaList: {
+					captionList: {
+						type: 'array',
+						default: []
+					},
+					locationList: {
+						type: 'array',
+						default: []
+					}
+				}
+			}
+		}
 	},
 	/**
 	 * @see ./edit.js

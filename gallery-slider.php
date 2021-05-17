@@ -24,6 +24,6 @@ function rt_gallery_slider_gallery_slider_block_init() {
 	register_block_type_from_metadata( __DIR__ );
 
 	/** Slider fonrt-end Scripts */
-	wp_enqueue_script( 'gallery-slider-script', plugins_url( 'src/custom-controls/gallery-slider-fs.js', __FILE__ ), array(), '1.0.27', true );
+	wp_enqueue_script( 'gallery-slider-script', plugins_url( 'src/custom-controls/gallery-slider-fs.js', __FILE__ ), array(), '1.0.28', true );
 }
 add_action( 'init', 'rt_gallery_slider_gallery_slider_block_init' );

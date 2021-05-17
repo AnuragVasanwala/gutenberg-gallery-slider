@@ -87,6 +87,8 @@ function seek_slide() {
 
 /**
  * Performs auto and user specified transition
+ * @param {*} auto_increment_slide Enable/disable auto slide index increment
+ * @param {*} force Forces transition
  */
 function slide_loop(auto_increment_slide = true, force = false) {
     /** Retrive slides and indicators */
@@ -133,12 +135,16 @@ function slide_loop(auto_increment_slide = true, force = false) {
         indicators[slide_index].className += " rt-gallery-slider-indicator-active";
     }
 
+    /** Video auto-play/pause */
     if (slides[slide_index].childNodes[0].tagName.toLowerCase() == "video"){
+        /** Clear exiting timer */
         clearTimeout(transition_timer);
         
+        /** Play video from initial position */
         slides[slide_index].childNodes[0].currentTime = 0;
         var promise = slides[slide_index].childNodes[0].play();
         
+        /** Show video controls on error */
         if (promise !== undefined) {
             promise.catch(error => {
                 slides[slide_index].childNodes[0].setAttribute("controls","controls");
@@ -147,6 +153,7 @@ function slide_loop(auto_increment_slide = true, force = false) {
             });
         }
 
+        /** Attach increment slide on video end */
         slides[slide_index].childNodes[0].onended = function(){increment_slide(1);};
         return;
     }
